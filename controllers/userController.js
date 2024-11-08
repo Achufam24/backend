@@ -9,10 +9,12 @@ const createToken = (_id) => {
 
 //login user
 const Login_user = async(req,res) => {
-    const {email,password} = req.body
+    const {email} = req.body;
     try {
-        const user = await User.login(email,password)
-
+        const user = await User.login(email,req.body.password)
+        const userObject = user.toObject();
+        delete userObject.password;
+        delete userObject.__v
         //create token
         const token = createToken(user._id)
         
@@ -20,8 +22,8 @@ const Login_user = async(req,res) => {
             status: 201,
             message: "Successful!",
             data: {
-                user,
-                token
+                user:userObject,
+                token 
             }
         })
     } catch (error) {
@@ -59,6 +61,10 @@ const Signup_user = async(req,res) => {
         }
         const user = await User.signup(req.body);
 
+        const userObject = user.toObject();
+        delete userObject.password;
+        delete userObject.__v
+
         //create token
         const token = createToken(user._id)
         
@@ -66,7 +72,7 @@ const Signup_user = async(req,res) => {
             status: 201,
             message: "Successful!",
             data: {
-                user,
+                user: userObject,
                 token
             }
             

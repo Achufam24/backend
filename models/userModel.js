@@ -53,6 +53,12 @@ userSchema.statics.signup =  async function (payload){
     if (exists) {
         throw Error('Email already in use')
     }
+
+    const phoneNumberExists = await this.findOne({phoneNumber: payload.phoneNumber});
+
+    if(phoneNumberExists){
+        throw Error("Phone number already in use");
+    }
     // const salt = await bcrypt.genSalt(10)
     // const hash = await bcrypt.hash(payload.password, salt)
     const hashedPassword = await bcrypt.hash(payload.password, 10);
