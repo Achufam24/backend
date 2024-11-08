@@ -2,7 +2,6 @@
 require('dotenv').config()
 
 const express = require('express');
-const workoutRoutes = require('./routes/workouts');
 const userRoutes = require('./routes/user')
 
 const mongoose = require('mongoose');
@@ -21,11 +20,10 @@ app.use((req,res,next) =>{
     next();
 })
 //routes
-app.use('/api/workouts/',workoutRoutes);
-app.use('/api/user/',userRoutes);
+app.use('/api/v1/user/',userRoutes);
 
 //connect to db
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect("mongodb+srv://Tracman:Achufam24@cluster0.ittx4rp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 .then(() => {
     //listen for requests
     app.listen(process.env.PORT, () => {

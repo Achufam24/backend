@@ -1,44 +1,69 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
-const { use } = require('../routes/workouts');
 
-const Schema = mongoose.Schema
+
+const Schema = mongoose.Schema;
 const userSchema = new Schema({
-    email:{
-        type:String,
-        required:true,
-        unique:true
+    email: {
+        type: String,
+        required: true,
+        unique: true
     },
-    password:{
-        type:String,
-        required:true
+    password: {
+        type: String,
+        required: true
+    },
+    phoneNumber: {
+        type: String,
+        required: false
+    },
+    firstName: {
+        type: String,
+        required: false
+    },
+    lastName: {
+        type: String,
+        required: false
+    },
+    referralCode: {
+        type: String,
+        required: false
     }
-})
+});
 
 //static signup method
-userSchema.statics.signup =  async function (email,password){
+userSchema.statics.signup =  async function (payload){
+    console.log(payload);
+    
 
     //validation
-    if (!email || !password) {
+    if (!payload.email || !payload.password) {
         throw Error('All fields must be filled')
     }
-    if (!validator.isEmail(email)) {
+    if (!validator.isEmail(payload.email)) {
         throw Error('Email is not valid')
     }
-    if (!validator.isStrongPassword(password)) {
+    if (!validator.isStrongPassword(payload.password)) {
         throw Error('Password not strong enough')
     }
 
-    const exists = await this.findOne({email})
+    const exists = await this.findOne({email: payload.email})
 
     if (exists) {
         throw Error('Email already in use')
     }
-    const salt = await bcrypt.genSalt(10)
-    const hash = await bcrypt.hash(password, salt)
+    // const salt = await bcrypt.genSalt(10)
+    // const hash = await bcrypt.hash(payload.password, salt)
+    const hashedPassword = await bcrypt.hash(payload.password, 10);
 
-    const user = await this.create({email,password:hash})
+    console.log(hashedPassword);
+    
+
+    const user = await this.create({
+        ...payload,
+        password:hashedPassword
+    })
 
     return user
 }
@@ -48,7 +73,9 @@ userSchema.statics.login = async function (email,password) {
     if (!email || !password) {
         throw Error('All fields must be filled')
     }
-    const user = await this.findOne({email})
+    const user = await this.findOne({email});
+    console.log(user);
+    
 
     if (!user) {
         throw Error('Incorrect email')

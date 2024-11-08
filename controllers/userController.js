@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 //create jwt token 
 const createToken = (_id) => {
-   return jwt.sign({_id}, process.env.SECRET, {expiresIn: '3d'})
+   return jwt.sign({_id}, "owillo", {expiresIn: '3d'})
 }
 
 //login user
@@ -16,26 +16,66 @@ const Login_user = async(req,res) => {
         //create token
         const token = createToken(user._id)
         
-        res.status(200).json({email,token})
+        res.status(200).json({
+            status: 201,
+            message: "Successful!",
+            data: {
+                user,
+                token
+            }
+        })
     } catch (error) {
-        res.status(400).json({error:error.message})
+        res.status(400).json({
+            status: 400,
+            error:error.message
+        })
     }
 }
 
 //signup user
 const Signup_user = async(req,res) => {
     //grab email & password from req body
-    const {email,password} = req.body
+    const {email,password, phoneNumber, firstName, lastName, referrralCode} = req.body
+
+   
 
     try {
-        const user = await User.signup(email,password)
+        if (!email) {
+            throw Error("email is required")
+        }
+        if (!password) {
+            throw new Error("password is required")
+        }
+        if(!phoneNumber){
+            throw new Error("phoneNumber is required")
+        }
+    
+        if (!firstName) {
+            throw new Error("firstName is required")
+        }
+    
+        if (!lastName) {
+            throw new Error("lastName is required")
+        }
+        const user = await User.signup(req.body);
 
         //create token
         const token = createToken(user._id)
         
-        res.status(200).json({email,token})
+        res.status(201).json({
+            status: 201,
+            message: "Successful!",
+            data: {
+                user,
+                token
+            }
+            
+        })
     } catch (error) {
-        res.status(400).json({error:error.message})
+        res.status(400).json({
+            status: 400,
+            error:error.message
+        })
     }
 }
 
