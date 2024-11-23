@@ -10,26 +10,65 @@ const userSchema = new Schema({
         required: true,
         unique: true
     },
+    userName: {
+        type: String,
+        unique: true
+    },
     password: {
         type: String,
         required: true
     },
     phoneNumber: {
         type: String,
+        default: null,
         required: false
     },
     firstName: {
         type: String,
+        default: null,
         required: false
     },
     lastName: {
         type: String,
+        default: null,
         required: false
     },
     referralCode: {
         type: String,
+        default: null,
         required: false
-    }
+    },
+    country: {
+        type: String,
+        default: null,
+        required: false
+    },
+    city:{
+        type: String,
+        default: null,
+        required: false
+    },
+    linkedIn:{
+        type: String,
+        default: null,
+        required: false
+    },
+    yearsOfExperience: {
+        type: String,
+        default: null,
+        required: false
+    },
+    currentSalary:{
+        type: Number,
+        default: null,
+        required: false
+    },
+    desiredSalary:{
+        type: Number,
+        default: null,
+        required: false
+    },
+
 });
 
 //static signup method
