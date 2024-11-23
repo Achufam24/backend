@@ -1,6 +1,7 @@
 const User = require('../models/userModel')
 const Experience = require('../models/experienceModel')
 const jwt = require('jsonwebtoken');
+const experienceModel = require('../models/experienceModel');
 
 
 //create jwt token 
@@ -64,7 +65,7 @@ const Signup_user = async(req,res) => {
 
         const userObject = user.toObject();
         delete userObject.password;
-        delete userObject.__v
+        delete userObject.__v;
 
         //create token
         const token = createToken(user._id)
@@ -96,6 +97,36 @@ const editValidationRules = {
     currentSalary: { required: false, message: "currentSalary is optional", type: "number" }, 
     desiredSalary: { required: false, message: "desiredSalary is optional", type: "number" }, 
     location: { required: true, message: "location is required", type: "string" }
+};
+
+const experienceValidationRules = {
+    companyName: { required: true, message: "companyName is required", type: "string" },
+    jobTitle: { required: true, message: "jobTitle is required", type: "string" },
+    roleDescription: { required: false, message: "roleDescription is optional", type: "string" },
+    startDate: { required: true, message: "startDate is required", type: "date" },
+    endDate: { required: false, message: "endDate is optional", type: "date" },
+    present: { required: false, message: "present is optional", type: "boolean" }
+};
+
+const validateExperienceData = (data) => {
+    const errors = [];
+
+    for (const [field, { required, message, type }] of Object.entries(experienceValidationRules)) {
+        if (required && !data[field]) {
+            errors.push(message);
+        } else if (data[field] !== undefined) {
+            if (type === "date") {
+                const dateValue = new Date(data[field]);
+                if (isNaN(dateValue.getTime())) {
+                    errors.push(`${field} must be a valid date`);
+                }
+            } else if (typeof data[field] !== type) {
+                errors.push(`${field} must be of type ${type}`);
+            }
+        }
+    }
+
+    return errors;
 };
 
 
@@ -218,10 +249,75 @@ const fetch_user = async(req,res) => {
     }
 }
 
+const saveExperience = async (req, res) => {
+    const experienceData = req.body;
+    const validationErrors = validateExperienceData(experienceData);
+
+    if (validationErrors?.length > 0) {
+        return res.status(400).json({ errors: validationErrors[0] });
+    }
+
+    try {
+        let experience;
+        if (experienceData._id) {
+            // Edit existing experience
+            experience = await Experience.findByIdAndUpdate(experienceData._id, experienceData, { new: true });
+        } else {
+            experienceData.userId = req.user._id;
+            // Add new experience
+            experience = new Experience(experienceData);
+            await experience.save();
+        }
+        return res.status(201).json({
+            status: 201,
+            message: "Successful!",
+        });
+    } catch (error) {
+        return res.status(500).json({ error: "An error occurred while saving experience." });
+    }
+};
+
+
+const fetchExperiences = async (req, res) => {
+    try {
+       const experiences = await experienceModel.find({
+         userId: req.user._id
+       })
+        return res.status(200).json({
+            status: 200,
+            message: "Fetched Successfully!",
+            data: experiences
+        });
+    } catch (error) {
+        return res.status(500).json({ error: "An error occurred while saving experience." });
+    }
+};
+
+
+const deleteExperience = async (req, res) => {
+    const { id } = req.params;
+    try {
+       const experiences = await experienceModel.findById(id);
+       if (!experiences) {
+           throw Error("experience invalid id")
+       }
+       await experienceModel.findByIdAndDelete(experiences.id);
+        return res.status(200).json({
+            status: 200,
+            message: "Deleted Successfully!"
+        });
+    } catch (error) {
+        return res.status(500).json({ error: "An error occurred while saving experience." });
+    }
+};
+
 
 
 module.exports = {
     Login_user,Signup_user,
     complete_profile,
-    fetch_user
+    fetch_user,
+    saveExperience,
+    fetchExperiences,
+    deleteExperience
 }

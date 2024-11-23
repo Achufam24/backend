@@ -4,7 +4,10 @@ const {
 Login_user,
 Signup_user,
 complete_profile,
-fetch_user
+fetch_user,
+saveExperience,
+fetchExperiences,
+deleteExperience
 } = require('../controllers/userController');
 const requireAuth = require('../middleware/requireAuth');
 
@@ -19,5 +22,14 @@ router.put('/complete-profile', requireAuth, complete_profile);
 
 //fetch user
 router.get('/me', requireAuth, fetch_user);
+
+//save Experience
+router.post('/experience', requireAuth, saveExperience);
+
+//save Experience
+router.get('/experience', requireAuth, fetchExperiences);
+
+//Edit Experience
+router.delete('/experience/:id', requireAuth, deleteExperience);
 
 module.exports = router
