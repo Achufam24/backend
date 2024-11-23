@@ -53,6 +53,10 @@ const Signup_user = async(req,res) => {
         if(!phoneNumber){
             throw new Error("phoneNumber is required")
         }
+        const passwordRegex = /^(?=.*[A-Z])(?=.*\d.*\d)(?=.*[\W_]).{8,}$/;
+        if (!passwordRegex.test(password)) {
+            throw new Error("Password must be at least 8 characters long, contain at least one uppercase letter, two numbers, and one special character.");
+        }
     
         if (!firstName) {
             throw new Error("firstName is required")
